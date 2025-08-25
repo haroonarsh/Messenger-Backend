@@ -6,6 +6,7 @@ import errorMiddleware from './middlewares/error.middleware';
 import pino from 'pino';
 import config from './config';
 import pinoHttp from 'pino-http';
+import router from './routes';
 
 const logger = pino({ level: config.LOG_LEVEL });
 const app = express();
@@ -24,6 +25,9 @@ app.use(cors({
 if (config.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
+
+// routes
+app.use('/api', router);
 
 //404
 app.use((req, res) => res.status(404).json({ message: 'Route not found' }));

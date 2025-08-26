@@ -1,18 +1,46 @@
+import { Request, Response, NextFunction } from "express";
+import { validationResult } from "express-validator";
+import * as AuthService from "../../services/auth/auth.service";
 
+export async function register(req: Request, res: Response, next: NextFunction) {
+    try {
+        // express-validator check
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
 
-// // import authService from "../../services/auth/auth.service";
+        const payload = {
+            username: req.body.username,
+            email: req.body.email,
+            password: req.body.password,
+            name: req.body.name,
+        };
 
-// import authService from "../../services/auth/auth.service"
+        // file from multer
+        const file = (req as any).file as Express.Multer.File | undefined;
 
-// // 
+        const result = await AuthService.register(payload, file);
+        return res.status(201).json(result);
+    } catch (error) {
+        next(error);
+    }
+}
 
-// // export default {
-// //     async registerUser(req: Request, res: Response, next: NextFunction) {
-  
-// //       const user = await  authService.registerUser(sdh)
-// //     }
+export async function login(req: Request, res: Response, next: NextFunction) {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
 
-// async NavigatorLogin(){
-//     authService.login
-// }
-// // }
+        const payload = {
+            emailOrUsername: req.body.emailOrUsername,
+            password: req.body.password,
+        };
+        const result = await AuthService.login(payload);
+        return res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+}

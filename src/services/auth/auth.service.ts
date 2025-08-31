@@ -1,7 +1,7 @@
 import { RegisterDTO, LoginDTO } from "../../interfaces/auth.interface";
 import { createUser, findByEmail, findById, findByUsername } from "../../repositories/user.repo";
 import { hashPassword, comparePassword } from "../../utils/hash";
-import { signToken } from "../../utils/jwt";
+import { signToken, verifyToken } from "../../utils/jwt";
 import { uploadBufferToCloudinary } from "../../utils/cloudinary-upload";
 import { UserDocument } from "../../models/user.model";
 
@@ -33,11 +33,12 @@ export async function register(payload: RegisterDTO, file?: Express.Multer.File)
         email: payload.email,
         password: hashedPassword,
         name: payload.name,
+        bio: payload.bio,
         avatar,
     })) as UserDocument;
 
     // 5. sign token
-    const token = signToken({ sub: user._id.toString(), id: user._id.toString(), username: user.username, email: user.email });
+    const token = signToken({ sub: user._id.toString(), id: user._id.toString(), username: user.username, email: user.email, name: user.name, avatar: user.avatar, bio: user.bio, status: user.status, createdAt: user.createdAt, updatedAt: user.updatedAt, });
 
     // 6. retern safe user data
     const { password: _p, ...safeUser } = user.toObject();
@@ -62,8 +63,12 @@ export async function login(payload: LoginDTO) {
         throw Object.assign(new Error('Invalid credentials'), { status: 400 });
     }
 
-    const token = signToken({ sub: user._id.toString(), id: user._id.toString(), username: user.username, email: user.email });
+    const token = signToken({ sub: user._id.toString(), id: user._id.toString(), username: user.username, email: user.email, name: user.name, avatar: user.avatar, bio: user.bio, status: user.status, createdAt: user.createdAt, updatedAt: user.updatedAt, });
 
     const { password: _p, ...safeUser } = user.toObject();
     return { user: safeUser as Partial<UserDocument>, token };
 }
+
+// export async function getMe(token: string) {
+
+// }

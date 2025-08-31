@@ -8,15 +8,21 @@ export default function authMiddleware(req: Request, res: Response, next: NextFu
         return res.status(401).json({ message: "Unauthorized" });
     }
     const token = header.split(" ")[1];
-    try {
+  try {
         const payload = jwt.verify(token, config.JWT_SECRET) as any;
         req.user = {
             id: payload.sub || payload.id,
             username: payload.username,
             email: payload.email,
+            name: payload.name,
+            bio: payload.bio,
+            avatar: payload.avatar,
+            status: payload.status,
+            createdAt: payload.createdAt,
+            updatedAt: payload.updatedAt,
         };
         return next();
-    } catch (error) {
+  } catch (error) {
         return res.status(401).json({ message: "Invalid token" });
-    }
+  }
 }

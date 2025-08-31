@@ -3,6 +3,7 @@ export interface RegisterDTO {
     email: string;
     password: string;
     name?: string;
+    bio?: string;
 }
 
 export interface LoginDTO {

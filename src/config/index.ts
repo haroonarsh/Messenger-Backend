@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import path from 'path';
 
-const envPath = process.env.NODE_ENV === 'production' ? '.env' : path.resolve(process.cwd(), '.env');
+const envPath = process.env.NODE_ENV === 'development' ? '.env' : path.resolve(process.cwd(), '.env');
 dotenv.config({ path: envPath });
 
 function required(key: string): string {
@@ -11,7 +11,7 @@ function required(key: string): string {
 }
 
 export default {
-    PORT: process.env.PORT || 5000,
+    PORT: process.env.PORT || 4000,
     NODE_ENV: process.env.NODE_ENV || 'development',
     LOG_LEVEL: process.env.LOG_LEVEL || 'info',
     MONGO_URL: process.env.MONGO_URL || required('MONGO_URL'),

@@ -7,6 +7,7 @@ import pino from 'pino';
 import config from './config';
 import pinoHttp from 'pino-http';
 import router from './routes';
+import cookieParser from 'cookie-parser';
 
 const logger = pino({ level: config.LOG_LEVEL });
 const app = express();
@@ -21,10 +22,13 @@ app.use(helmet());
 app.use(cors({
     origin: config.CLIENT_URL,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 if (config.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
+app.use(cookieParser());
 
 // routes
 app.use('/api', router);

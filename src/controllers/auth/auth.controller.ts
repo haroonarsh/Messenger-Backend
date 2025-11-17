@@ -66,3 +66,12 @@ export async function getMe(req: Request, res: Response, next: NextFunction) {
         next(error);
     }
 }
+
+export async function logout(req: Request, res: Response, next: NextFunction) {
+    try {
+        res.clearCookie('token');
+        return res.status(200).json({ message: 'Logout successful' });
+    } catch (error) {
+        next(error);
+    }
+}

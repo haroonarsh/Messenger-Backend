@@ -58,6 +58,17 @@ export function initSocket(server: HttpServer) {
             }
         });
 
+        // Add listeners for motifications
+        socket.on("friendRequest", (payload) => {
+            // Already handled in controller
+            io.to(`user:${payload.toUserId}`).emit("friendRequest", payload);
+        });
+
+        // In accept
+        socket.on("friendRequestAccepted", (payload) => {
+            io.to(`user:${payload.requestFromId}`).emit("friendRequestAccepted", payload);
+        });
+
         // join conversation room
         socket.on("join-conversation", ({ conversationId }: { conversationId: string }) => {
             if (!conversationId) return;

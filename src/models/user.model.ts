@@ -11,6 +11,12 @@ export interface IUser {
     } | null;
     bio?: string;
     status?: string;
+    friends?: Types.ObjectId[];
+    friendRequests?: {
+        from: Types.ObjectId;
+        status: 'pending' | 'accepted' | 'rejected';
+        createdAt: Date;
+    }[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -30,8 +36,17 @@ const userSchema = new Schema<UserDocument>(
         },
         bio: { type: String, default: '' },
         status: { type: String, default: 'Hey there! I am using Messenger.' },
+        friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+        friendRequests: [{
+            from: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+            status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' },
+            createdAt: { type: Date, default: Date.now },
+        }],
     },
     { timestamps: true }
 );
+
+// index 
+userSchema.index({ 'friendRequests.from': 1 });
 
 export default model<UserDocument>('User', userSchema);

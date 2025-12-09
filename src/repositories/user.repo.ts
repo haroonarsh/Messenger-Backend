@@ -41,23 +41,39 @@ export const sendFriendRequest = async (fromId: string, toId: string): Promise<U
     ).exec() as Promise<UserDocument>;
 };
 
-export const getPendingRequests = async (userId: string): Promise<UserDocument[]> => {
-    return User.findById(userId).populate('friendRequests.from', 'name username avatar').exec();
+export const getPendingRequests = async (userId: string): Promise<UserDocument | null> => {
+    return await User.findById(userId).populate('friendRequests.from', 'name username avatar').exec();
 }
 
 export const acceptFriendRequest = async (userId: string, requestFromId: string): Promise<UserDocument> => {
+  // Step 1: Pull the pending request
+  await User.findByIdAndUpdate(userId, {
+    $pull: { friendRequests: { from: requestFromId, status: 'pending' } }
+  }).exec();
+
+  // Step 2: Add to friends list (current user)
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { 
+      $addToSet: { friends: requestFromId }  // $addToSet prevents duplicates
+    },
+    { new: true }
+  ).exec();
+
+  // Step 3: Add mutual friendship (sender adds receiver)
+  await User.findByIdAndUpdate(requestFromId, {
+    $addToSet: { friends: userId }
+  }).exec();
+
+  return updatedUser as UserDocument;
+};
+
+export const rejectFriendRequest = async (userId: string, requestFromId: string): Promise<UserDocument> => {
     const updated = await User.findByIdAndUpdate(
         userId,
-        { 
-            $pull: { friendRequests: { from: requestFromId, status: 'pending' } },
-            $push: { friends: requestFromId },
-            $addToSet: { friendRequests: { from: requestFromId, status: 'accepted' } }
-        },
+        { $pull: { friendRequests: { from: requestFromId, status: 'pending' } } },
         { new: true }
     ).exec();
-
-    // Mutual friend add
-    await User.findByIdAndUpdate(requestFromId, { $push: { friends: userId } }).exec();
 
     return updated as UserDocument;
 };

@@ -13,6 +13,7 @@ export interface IUser {
     status?: string;
     friends?: Types.ObjectId[];
     friendRequests?: {
+        _id: Types.ObjectId;
         from: Types.ObjectId;
         status: 'pending' | 'accepted' | 'rejected';
         createdAt: Date;

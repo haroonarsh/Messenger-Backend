@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
-import { createConversation, findConversationByParticipants } from "../../repositories/conversation.repo";
 import * as UserRepo from "../../repositories/user.repo";
+import * as ConversationRepo from "../../repositories/conversation.repo";
 
 export const searchUser = async (query: string, userId: string) => {
     return UserRepo.searchUsers(query, userId);
@@ -23,19 +23,39 @@ export const getPendingRequests = async (userId: string) => {
     const userWithRequests = await UserRepo.getPendingRequests(userId);
     if (!userWithRequests) throw new Error('User not found');
 
-    return userWithRequests.friendRequests;
+    return userWithRequests.friendRequests || [];
 }
 
-export const acceptFriendRequest = async (userId: string, requestFromId: string) => {
-    const result = await UserRepo.acceptFriendRequest(userId, requestFromId);
+export const acceptFriendRequest = async (userId: string, requestId: string) => {
+  // First, get the request to know who sent it
+  const user = await UserRepo.findById(userId);
+  if (!user) throw new Error("User not found");
 
-    // Create conversation upon accepting friend request
-    let conversation = await findConversationByParticipants([userId, requestFromId]);
-    if (!conversation) {
-        conversation = await createConversation([userId, requestFromId]);
-    }
+  const request = user.friendRequests?.find(r => r._id.toString() === requestId);
+  if (!request || request.status !== 'pending') {
+    throw new Error("Invalid or already processed request");
+  }
 
-    return { message: 'Friend request accepted', conversation };
+  const fromUserId = request.from.toString();
+
+  // Accept the request (removes from pending, adds to friends)
+  await UserRepo.acceptFriendRequest(userId, fromUserId);
+
+  // Create 1-on-1 conversation if not exists
+  let conversation = await ConversationRepo.findConversationByParticipants([userId, fromUserId]);
+  if (!conversation) {
+    conversation = await ConversationRepo.createConversation([userId, fromUserId]);
+  }
+
+  return { 
+    message: 'Friend request accepted', 
+    conversationId: conversation._id.toString() 
+  };
+};
+
+export const rejectFriendRequest = async (userId: string, requestFromId: string) => {
+    const result = await UserRepo.rejectFriendRequest(userId, requestFromId);
+    return { message: 'Friend request rejected' };
 }
 
 ///////////////////////
@@ -50,9 +70,9 @@ export const addFriend = async (currentUserId: string, friendId: string) => {
     await addFriend(currentUserId, friendId);
     await addFriend(friendId, currentUserId);
 
-    let conversation = await findConversationByParticipants([currentUserId, friendId]);
+    let conversation = await ConversationRepo.findConversationByParticipants([currentUserId, friendId]);
     if (!conversation) {
-        conversation = await createConversation([currentUserId, friendId]);
+        conversation = await ConversationRepo.createConversation([currentUserId, friendId]);
     }
 
     return { message: 'Friend added', conversation };

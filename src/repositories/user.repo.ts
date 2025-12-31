@@ -78,6 +78,13 @@ export const rejectFriendRequest = async (userId: string, requestFromId: string)
     return updated as UserDocument;
 };
 
+export const getUserWithPopulatedFriends = async (userId: string) => {
+  return await User.findById(userId)
+    .populate('friends', 'name username avatar')
+    .lean() // Clean plain object
+    .exec();
+};
+
 export const addFriend = async (userId: string, friendId: string): Promise<UserDocument> => {
     return User.findByIdAndUpdate(userId, { $push: { friends: friendId } }, { new: true }).exec() as Promise<UserDocument>;
 };

@@ -1,6 +1,8 @@
 import { Types } from "mongoose";
 import * as UserRepo from "../../repositories/user.repo";
 import * as ConversationRepo from "../../repositories/conversation.repo";
+import { UserType } from "../../interfaces/auth.interface";
+import User from "../../models/user.model";
 
 export const searchUser = async (query: string, userId: string) => {
     return UserRepo.searchUsers(query, userId);
@@ -11,7 +13,7 @@ export const sendFriendRequest = async (fromUserId: string, toUserId: string) =>
     if (!toUser) throw new Error('User not found');
 
     const fromUser = await UserRepo.findById(fromUserId);
-    if (toUser?.friends?.includes(new Types.ObjectId(toUserId))) throw new Error('Already friends');
+    if (fromUser?.friends?.includes(new Types.ObjectId(toUserId))) throw new Error('Already friends');
     if (toUser?.friendRequests?.some(req => req.from.toString() === fromUserId && req.status === 'pending')) throw new Error('Friend request already sent');
 
     await UserRepo.sendFriendRequest(fromUserId, toUserId);
@@ -57,6 +59,27 @@ export const rejectFriendRequest = async (userId: string, requestFromId: string)
     const result = await UserRepo.rejectFriendRequest(userId, requestFromId);
     return { message: 'Friend request rejected' };
 }
+
+// export const getFriends = async (userId: string): Promise<UserType[]> => {
+//   if (!userId) throw new Error("User ID is required");
+
+//   const currentUser = await User.findById(userId)
+//     .populate<{ friends: UserType[] }>('friends', 'name username avatar')
+//     .lean() // Optional but recommended — gives plain objects (no Mongoose docs)
+//     .exec();
+
+//   if (!currentUser) throw new Error("User not found");
+
+//   return currentUser.friends || [];
+// };
+
+export const getFriends = async (userId: string) => {
+  const user = await UserRepo.getUserWithPopulatedFriends(userId);
+
+  if (!user) throw new Error("User not found");
+
+  return user.friends || [];
+};
 
 ///////////////////////
 

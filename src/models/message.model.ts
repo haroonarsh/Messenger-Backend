@@ -3,7 +3,7 @@ import { Document, Schema, model, Types } from "mongoose";
 export interface IMessage {
     conversationId: Types.ObjectId;
     sender: Types.ObjectId;
-    content: string;
+    text: string;
     type: "text" | "image" | "video" | "file" | "audio";
     mediaUrl?: string; // For cloudinary links
     readBy: Types.ObjectId[]; // Array of user IDs who have read the message
@@ -17,7 +17,7 @@ const messageSchema = new Schema<MessageDocument>(
     {
         conversationId: { type: Schema.Types.ObjectId, ref: "Conversation", required: true },
         sender: { type: Schema.Types.ObjectId, ref: "User", required: true },
-        content: {  type: String, required: true },
+        text: {  type: String, required: true },
         type: { type: String, enum: ["text", "image", "video", "file", "audio"], default: "text" },
         mediaUrl: { type: String },
         readBy: [{ type: Schema.Types.ObjectId, ref: "User" }],

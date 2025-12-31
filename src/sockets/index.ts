@@ -3,6 +3,7 @@ import { Server as IOServer, Socket } from "socket.io";
 import jwt from "jsonwebtoken";
 import config from "../config";
 import pino from "pino";
+import * as ChatService from "../services/chat/chat.service";
 
 const logger = pino({ level: config.LOG_LEVEL });
 
@@ -40,21 +41,42 @@ export function initSocket(server: HttpServer) {
 
         // sample: join user's own room for personal messages
         const userId = socket.data.user?.id;
-        if (userId) socket.join(`user:${userId}`);
+        if (userId) { 
+            socket.join(`user:${userId}`);
 
+            // Broadcast to all friends that user is online
+            io.emit("userOnline", { userId });
+
+            // On disconnect
+            socket.on("disconnect", () => {
+                io.emit("userOffline", { userId });
+            })
+        }
+        
         // sample event: send-message
-        socket.on("send-message", async (payload: any) => {
-            // payload: { consersationId, text, attachments, ... }
-            logger.info({ socketId: socket.id, payload }, "send-message received");
+        socket.on("send-message", async (payload: { conversationId: string; text: string; }) => {
+            const userId = socket.data.user?.id;
+            console.log("Send message from user:", userId, "to conv:", payload.conversationId);
+            if (!userId || !payload.conversationId || !payload.text) return;
 
-            // TODO: validate, persist message to DB, emit to other participants, etc.
-            // For demo, just broadcast to the conversation room:
-            if (payload?.conversationId) {
-                io.to(`conversation:${payload.conversationId}`).emit("new-message", {
-                    ...payload,
-                    senderId: userId,
-                    timestamp: new Date().toISOString(),
-                });
+            if (!userId || !payload.conversationId || !payload.text?.trim()) {
+                return socket.emit("error", { message: "Invalid message data" });
+            }
+
+            try {
+                const message = await ChatService.sendMessage(
+                    userId,
+                    payload.conversationId,
+                    payload.text.trim(),
+                );
+
+                // Broadcast to all in conversation room
+                io.to(`conversation:${payload.conversationId}`).emit("new-message", message);
+
+                // Optional: confirm to sender
+                socket.emit("message-sent", { success: true, messageId: message._id });
+            } catch (error) {
+                socket.emit("error", { message: (error as Error).message });
             }
         });
 

@@ -35,7 +35,7 @@ export const updateLastMessage = async ( conversationId: string, messageId: stri
 
 export const findConversationById = async ( conversationId: string ) => {
   return await Conversation.findById(conversationId)
-    .populate("participants", "username avatar _id")
+    .populate("participants", "name username avatar status _id")
     .populate("lastMessage")
     .exec();
 };

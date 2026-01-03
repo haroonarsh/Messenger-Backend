@@ -64,3 +64,12 @@ export const findOrCreateConversation = async (participantIds: string[]) => {
 
     return conversation;
 };
+
+export const getConversationById = async (conversationId: string) => {
+  const conversation = await ConversationRepo.findConversationById(conversationId);
+
+  if (!conversation) return null;
+
+  // Already populated in repo (see below)
+  return conversation;
+};

@@ -56,3 +56,20 @@ export const findOrCreateConversation = async (req: Request, res: Response) => {
         return res.status(500).json({ message: (error as Error).message });
     }
 };
+
+export const getConversationById = async (req: Request, res: Response) => {
+  try {
+    const { conversationId } = req.params;
+
+    const conversation = await ChatService.getConversationById(conversationId);
+
+    if (!conversation) {
+      return res.status(404).json({ message: "Conversation not found" });
+    }
+
+    return res.status(200).json(conversation);
+  } catch (error: any) {
+    console.error("Get conversation error:", error);
+    return res.status(500).json({ message: error.message });
+  }
+};

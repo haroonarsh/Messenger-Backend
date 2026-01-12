@@ -10,7 +10,7 @@ export const getMessages = async (conversationId: string) => {
     return MessageRepo.getMessagesByConversation(conversationId);
 };
 
-export const sendMessage = async (userId: string, conversationId: string, text: string) => {
+export const sendMessage = async (userId: string, conversationId: string, text: string = "", type: "text" | "image" | "video" = "text", mediaUrl?: string) => {
 
     console.log('SendMessage - userId:', userId);
     console.log('SendMessage - conversationId:', conversationId);
@@ -38,6 +38,8 @@ export const sendMessage = async (userId: string, conversationId: string, text: 
         conversationId,
         sender: new mongoose.Types.ObjectId(userId),
         text,
+        type,
+        mediaUrl,
     });
 
     // Populate sender info
@@ -49,8 +51,8 @@ export const sendMessage = async (userId: string, conversationId: string, text: 
     return message;
 };
 
-export const getMessagesInConversation = async (conversationId: string) => {
-    return await MessageRepo.getMessagesByConversation(conversationId);
+export const getMessagesInConversation = async (conversationId: string, skip: number = 0, limit: number = 30 ) => {
+    return await MessageRepo.getMessagesByConversation(conversationId, skip, limit);
 };
 
 export const findOrCreateConversation = async (participantIds: string[]) => {

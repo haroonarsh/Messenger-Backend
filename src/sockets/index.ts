@@ -54,20 +54,26 @@ export function initSocket(server: HttpServer) {
         }
         
         // sample event: send-message
-        socket.on("send-message", async (payload: { conversationId: string; text: string; }) => {
+        socket.on("send-message", async (payload: { conversationId: string; text?: string; type?: "text" | "image" | "video"; mediaUrl?: string }) => {
             const userId = socket.data.user?.id;
-            console.log("Send message from user:", userId, "to conv:", payload.conversationId);
-            if (!userId || !payload.conversationId || !payload.text) return;
+            console.log("Send message from user:", payload);
+            if (!userId || !payload.conversationId) return;
 
-            if (!userId || !payload.conversationId || !payload.text?.trim()) {
-                return socket.emit("error", { message: "Invalid message data" });
+            if (!userId || !payload.conversationId) {
+                return socket.emit("error", { message: "Invalid data: missing user or conversation" });
+            }
+
+            if (!payload.text?.trim() && !payload.mediaUrl) {
+                return socket.emit("error", { message: "Message must have text or media" });
             }
 
             try {
                 const message = await ChatService.sendMessage(
                     userId,
                     payload.conversationId,
-                    payload.text.trim(),
+                    payload.text || "",
+                    payload.type || "text",
+                    payload.mediaUrl
                 );
 
                 // Broadcast to all in conversation room

@@ -13,8 +13,11 @@ export const getConversations = async (req: Request, res: Response) => {
 export const getMessages = async (req: Request, res: Response) => {
     try {
         const { conversationId } = req.params;
-        const messages = await ChatService.getMessages(conversationId);
-        return res.status(200).json(messages);
+        const skip = parseInt(req.query.skip as string) || 0;
+        const limit = parseInt(req.query.limit as string) || 30;
+
+        const messages = await ChatService.getMessagesInConversation(conversationId, skip, limit);
+        return res.status(200).json(messages.reverse());
     } catch (error: any) {
         return res.status(500).json({ message: error.message });
     }

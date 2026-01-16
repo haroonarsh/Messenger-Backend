@@ -44,6 +44,16 @@ export function initSocket(server: HttpServer) {
         if (userId) { 
             socket.join(`user:${userId}`);
 
+            // Typing start
+            socket.on("typing", ({ conversationId }: { conversationId: string }) => {
+                socket.to(`conversation:${conversationId}`).emit("typing", { userId });
+            });
+
+            // Typing stop
+            socket.on("stopTyping", ({ conversationId }: { conversationId: string }) => {
+                socket.to(`conversation:${conversationId}`).emit("stopTyping", { userId });
+            });
+
             // Broadcast to all friends that user is online
             io.emit("userOnline", { userId });
 

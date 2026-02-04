@@ -4,7 +4,7 @@ export interface IMessage {
     conversationId: Types.ObjectId;
     sender: Types.ObjectId;
     text?: string;
-    type: "text" | "image" | "video" | "file" | "audio";
+    type: "text" | "image" | "video" | "file" | "audio" | "voice";
     mediaUrl?: string; // For cloudinary links
     readBy: Types.ObjectId[]; // Array of user IDs who have read the message
     createdAt: Date;
@@ -18,7 +18,7 @@ const messageSchema = new Schema<MessageDocument>(
         conversationId: { type: Schema.Types.ObjectId, ref: "Conversation", required: true },
         sender: { type: Schema.Types.ObjectId, ref: "User", required: true },
         text: {  type: String },
-        type: { type: String, enum: ["text", "image", "video", "file", "audio"], default: "text" },
+        type: { type: String, enum: ["text", "image", "video", "file", "audio" , "voice"], default: "text" },
         mediaUrl: { type: String },
         readBy: [{ type: Schema.Types.ObjectId, ref: "User" }],
     },

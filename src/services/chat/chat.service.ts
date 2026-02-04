@@ -10,7 +10,7 @@ export const getMessages = async (conversationId: string) => {
     return MessageRepo.getMessagesByConversation(conversationId);
 };
 
-export const sendMessage = async (userId: string, conversationId: string, text: string = "", type: "text" | "image" | "video" = "text", mediaUrl?: string) => {
+export const sendMessage = async (userId: string, conversationId: string, text: string = "", type: "text" | "image" | "file" | "audio" | "voice" | "video" = "text", mediaUrl?: string) => {
 
     console.log('SendMessage - userId:', userId);
     console.log('SendMessage - conversationId:', conversationId);

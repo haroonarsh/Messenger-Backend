@@ -1,6 +1,6 @@
 import Message, { MessageDocument } from "../models/message.model";
 
-export const createMessage = async (data: { conversationId: string, sender: object, text: string; type?: "text" | "image" | "video"; mediaUrl?: string }): Promise<any> => {
+export const createMessage = async (data: { conversationId: string, sender: object, text: string; type?: "text" | "image" | "video" | "file" | "audio" | "voice"; mediaUrl?: string }): Promise<any> => {
     const message = new Message(data);
     await message.save();
     return message;

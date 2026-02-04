@@ -11,11 +11,13 @@ export function initSocket(server: HttpServer) {
     // allow CORS for your frontend origin, adjust as needed
     const io = new IOServer(server, {
         cors: {
-            origin: true,
+            origin: 'http://localhost:3000',
             methods: ["GET", "POST"],
             credentials: true,
+            allowedHeaders: ["Authorization", "Content-Type"],
         },
-        pingTimeout: 30000, // 30 seconds
+        pingTimeout: 60000, // 30 seconds
+        pingInterval: 25000,
     });
 
     // Middleware to authenticate socket connections using JWT
@@ -43,6 +45,25 @@ export function initSocket(server: HttpServer) {
         const userId = socket.data.user?.id;
         if (userId) { 
             socket.join(`user:${userId}`);
+
+            // Voice or video call signaling
+            // 1. Offer call
+            socket.on("call-offer", ({ toUserId, offer, payload }: { toUserId: string; offer: RTCSessionDescriptionInit, payload: { callType: "audio" | "video" } }) => {
+                socket.to(`user:${toUserId}`).emit("incoming-call", { fromUserId: userId, offer, callType: payload.callType });
+            });
+            // 2. Answer call
+            socket.on("call-answer", ({ toUserId, answer }: { toUserId: string; answer: RTCSessionDescriptionInit }) => {
+                socket.to(`user:${toUserId}`).emit("call-answered", { answer });
+            });
+            // 3. ICE candidates exchange
+            socket.on("ice-candidate", ({ toUserId, candidate }: { toUserId: string; candidate: RTCIceCandidateInit }) => {
+                socket.to(`user:${toUserId}`).emit("ice-candidate", { candidate });
+            });
+            
+            // 4. Hang up
+            socket.on("call-hangup", ({ toUserId }: { toUserId: string }) => {
+                socket.to(`user:${toUserId}`).emit("call-ended");
+            });
 
             // Typing start
             socket.on("typing", ({ conversationId }: { conversationId: string }) => {

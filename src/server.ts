@@ -7,7 +7,7 @@ import pino from 'pino';
 
 const logger = pino({ level: config.LOG_LEVEL });
 
-const port = config.PORT || 5000;
+const port = config.PORT || 4000;
 const server = http.createServer(app);
 
 // Initialize WebSocket after server created

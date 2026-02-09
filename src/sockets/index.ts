@@ -110,6 +110,17 @@ export function initSocket(server: HttpServer) {
                 // Broadcast to all in conversation room
                 io.to(`conversation:${payload.conversationId}`).emit("new-message", message);
 
+                // Find receivers to notify (all participants except sender)
+                const conversation = await ChatService.getConversationById(payload.conversationId);
+                const receiverId = conversation?.participants.find(p => p.toString() !== userId)?.toString();
+
+                if (receiverId) {
+                    // Emit notification to receiver's personal room
+                    io.to(`user:${receiverId}`).emit("new-message-notification", {
+                        message,
+                        senderId: userId,
+                    });
+                }
                 // Optional: confirm to sender
                 socket.emit("message-sent", { success: true, messageId: message._id });
             } catch (error) {

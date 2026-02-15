@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import morgan from 'morgan';
+// import morgan from 'morgan';
 import errorMiddleware from './middlewares/error.middleware';
 import pino from 'pino';
 import config from './config';
@@ -25,9 +25,9 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
-if (config.NODE_ENV === 'development') {
-    app.use(morgan('dev'));
-}
+// if (config.NODE_ENV === 'development') {
+//     app.use(morgan('dev'));
+// }
 app.use(cookieParser());
 
 // routes

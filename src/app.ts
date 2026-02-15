@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 // import morgan from 'morgan';
@@ -26,7 +26,7 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
   res.json({ 
     message: 'Messenger Backend API Running 🚀', 
     version: '1.0.0',
@@ -43,7 +43,7 @@ app.use(cookieParser());
 app.use('/api', router);
 
 //404
-app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
+app.use((req: Request, res: Response) => res.status(404).json({ message: 'Route not found' }));
 
 // custom middlewares
 app.use(errorMiddleware);

@@ -25,6 +25,15 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Messenger Backend API Running 🚀', 
+    version: '1.0.0',
+    time: new Date().toISOString()
+  });
+});
+
 // if (config.NODE_ENV === 'development') {
 //     app.use(morgan('dev'));
 // }

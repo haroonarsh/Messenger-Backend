@@ -3,9 +3,9 @@ import { validationResult } from "express-validator";
 import * as AuthService from "../../services/auth/auth.service";
 
 const cookieOptions = () => ({
-    httpOnly: false,
+    httpOnly: true,
     secure: true,
-    sameSite: 'lax' as const, // lax
+    sameSite: 'none' as const,
     maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
     path: '/'
 });

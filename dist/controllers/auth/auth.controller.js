@@ -40,9 +40,9 @@ exports.logout = logout;
 const express_validator_1 = require("express-validator");
 const AuthService = __importStar(require("../../services/auth/auth.service"));
 const cookieOptions = () => ({
-    httpOnly: false,
+    httpOnly: true,
     secure: true,
-    sameSite: 'lax', // lax
+    sameSite: 'none',
     maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
     path: '/'
 });

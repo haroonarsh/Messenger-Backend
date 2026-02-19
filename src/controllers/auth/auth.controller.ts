@@ -5,7 +5,7 @@ import * as AuthService from "../../services/auth/auth.service";
 const cookieOptions = () => ({
     httpOnly: true,
     secure: true,
-    sameSite: 'none' as const,
+    sameSite: 'none' as 'none',
     maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
     path: '/'
 });

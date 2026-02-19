@@ -12,7 +12,7 @@ function required(key: string): string {
 
 export default {
     PORT: process.env.PORT || 4000,
-    NODE_ENV: process.env.NODE_ENV || 'development',
+    NODE_ENV: process.env.NODE_ENV || 'production',
     LOG_LEVEL: process.env.LOG_LEVEL || 'info',
     MONGO_URL: process.env.MONGO_URL || required('MONGO_URL'),
     MONGO_CONNECT_RETRY_MS: Number(process.env.MONGO_CONNECT_RETRY_MS) || 3000,

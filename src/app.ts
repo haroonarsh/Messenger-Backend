@@ -20,7 +20,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(cors({
-    origin: config.CLIENT_URL,
+    origin: [
+        'http://localhost:3000',
+        config.CLIENT_URL
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
